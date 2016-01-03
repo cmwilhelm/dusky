@@ -1,7 +1,7 @@
-{-# LANGUAGE FlexibleContexts #-}
 module Main where
 
 import qualified Data.ByteString as B
+import           Data.List
 import           Codec.Picture.Types
 import           Codec.Picture.RGBA8
 
@@ -15,6 +15,18 @@ data TotalRGB    = TotalRGB Integer Integer Integer Int
 
 seattleArea :: RegionShape
 seattleArea = Circle (214, 340) 10
+
+
+intensityPalette :: RegionShape
+intensityPalette = Rectangle (1340, 143) (1340, 935)
+
+
+getIntensities :: Image PixelRGBA8
+               -> [(Pixel8, Pixel8, Pixel8)]
+getIntensities = map toRGB8
+               . nub
+               . flip selectRegion intensityPalette
+  where toRGB8 (PixelRGBA8 r g b _) = (r, g, b)
 
 
 takePixelAverage :: [PixelRGBA8] -> (Pixel8, Pixel8, Pixel8)
@@ -73,7 +85,24 @@ removeBlackPixels pixels = filter notBlack pixels
   where notBlack (PixelRGBA8 r g b _) = not (r == 0 && g == 0 && b == 0)
 
 
+determineRegionalIntensity :: Image PixelRGBA8
+                           -> RegionShape
+                           -> Int
+determineRegionalIntensity image shape = (\x -> 100 - x)
+                                       . (\x -> x `div` (length intensities))
+                                       . (*) 100
+                                       . snd
+                                       . head
+                                       . sort
+                                       $ zip (map (takeDelta areaAverage) intensities) [1..]
+  where areaAverage = takeAreaAverage image shape
+        intensities = getIntensities image
+        takeDelta (r1, g1, b1) (r2, g2, b2) = abs ( fromIntegral r1 - fromIntegral r2)
+                                            + abs ( fromIntegral g1 - fromIntegral g2)
+                                            + abs ( fromIntegral b1 - fromIntegral b2)
+
+
 main :: IO ()
 main = do
   converted <- readImageRGBA8 "./sunrise_f9_hp.png"
-  print $ takeAreaAverage converted seattleArea
+  print $ "Seattle is at " ++ (show $ determineRegionalIntensity converted seattleArea) ++ "% awesomesauce"
