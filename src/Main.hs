@@ -101,5 +101,5 @@ determineRegionalIntensity image shape = (\x -> 100 - x)
 
 main :: IO ()
 main = do
-  converted <- readImageRGBA8 "./sunrise_f9_hp.png"
+  converted <- readImageRGBA8 "./images/sunrise_f9_hp.png"
   print $ "Seattle is at " ++ (show $ determineRegionalIntensity converted seattleArea) ++ "% awesomesauce"
