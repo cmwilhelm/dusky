@@ -60,6 +60,8 @@ library
   build-depends:       base >=4.7 && <4.8,
                        JuicyPixels,
                        JuicyPixels-util,
+                       network,
+                       HTTP,
                        bytestring
 
   -- Directories containing source files.
