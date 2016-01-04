@@ -30,20 +30,18 @@ getIntensities = map toRGB8
 
 
 takePixelAverage :: [PixelRGBA8] -> (Pixel8, Pixel8, Pixel8)
-takePixelAverage = avg
-                 . foldr getSum (TotalRGB 0 0 0 0)
+takePixelAverage = avg . foldr getSum (TotalRGB 0 0 0 0)
   where avg (TotalRGB rS gS bS count) = ( pixelAverage rS count
                                         , pixelAverage gS count
                                         , pixelAverage bS count )
 
-        pixelAverage total count      = fromIntegral (total `div` fromIntegral count)
-                                      :: Pixel8
+        pixelAverage total count = fromIntegral (total `div` fromIntegral count) :: Pixel8
 
         getSum pixel (TotalRGB rS gS bS count) = TotalRGB newR newG newB (count+1)
           where (PixelRGBA8 r g b _) = pixel
-                newR                  = rS + fromIntegral r
-                newG                  = gS + fromIntegral g
-                newB                  = bS + fromIntegral b
+                newR                 = rS + fromIntegral r
+                newG                 = gS + fromIntegral g
+                newB                 = bS + fromIntegral b
 
 
 takeAreaAverage :: Image PixelRGBA8
@@ -64,12 +62,11 @@ isInsideShape (x,y) (Circle (xO,yO) radius) = fromIntegral radius >= distanceFro
 
 coordsForRegion :: RegionShape -> [Point]
 coordsForRegion (Rectangle (x1,y1) (x2,y2)) = [(x,y) | x <- [x1..x2], y <- [y1..y2]]
-coordsForRegion (Circle (xO, yO) radius)    = filter (flip isInsideShape circle)
+coordsForRegion c@(Circle (xO, yO) radius)  = filter (flip isInsideShape c)
                                             . coordsForRegion
                                             $ Rectangle point1 point2
   where point1 = (xO - radius, yO - radius)
         point2 = (xO + radius, yO + radius)
-        circle = (Circle (xO, yO) radius)
 
 
 selectRegion :: (Pixel a)
@@ -97,9 +94,9 @@ determineRegionalIntensity image shape = (\x -> 100 - x)
                                        $ zip (map (takeDelta areaAverage) intensities) [1..]
   where areaAverage = takeAreaAverage image shape
         intensities = getIntensities image
-        takeDelta (r1, g1, b1) (r2, g2, b2) = abs ( fromIntegral r1 - fromIntegral r2)
-                                            + abs ( fromIntegral g1 - fromIntegral g2)
-                                            + abs ( fromIntegral b1 - fromIntegral b2)
+        takeDelta (r1, g1, b1) (r2, g2, b2) = abs ( fromIntegral r1 - fromIntegral r2 )
+                                            + abs ( fromIntegral g1 - fromIntegral g2 )
+                                            + abs ( fromIntegral b1 - fromIntegral b2 )
 
 
 main :: IO ()
