@@ -22,11 +22,11 @@ sunriseImages :: [ForecastImage]
 sunriseImages = map makeImage [8..23]
   where buildUrl zTime      =  baseUrl
                             ++ "sunrise/sunrise_f"
-                            ++ show (zTime - 7)
+                            ++ show (zTime - 5)
                             ++ ".png"
 
         buildFileName zTime =  "sunrise_f"
-                            ++ show (zTime - 7)
+                            ++ show (zTime - 5)
                             ++ ".png"
 
         makeImage zTime     = ForecastImage { forecastType = Sunrise
