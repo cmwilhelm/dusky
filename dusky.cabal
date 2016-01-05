@@ -62,7 +62,9 @@ library
                        JuicyPixels-util,
                        network,
                        HTTP,
-                       bytestring
+                       bytestring,
+                       Chart,
+                       Chart-diagrams
 
   -- Directories containing source files.
   hs-source-dirs:      src

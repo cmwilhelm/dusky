@@ -2,6 +2,7 @@ module Main where
 
 import Codec.Picture.RGBA8
 import Control.Monad
+import Charter
 import FileFetcher
 import IntensityRater
 
@@ -29,7 +30,8 @@ main :: IO ()
 main = do
   sunriseValues <- fetchAndRateImagesForArea seattleArea sunriseImages
   sunsetValues  <- fetchAndRateImagesForArea seattleArea sunsetImages
-  print "Sunrise: "
-  print sunriseValues
-  print "Sunset: "
-  print sunsetValues
+
+  renderAndSaveLineGraph sunriseValues "Sunrise" "sunrise.svg"
+  renderAndSaveLineGraph sunsetValues  "Sunset"  "sunset.svg"
+
+  return ()
