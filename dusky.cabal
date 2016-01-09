@@ -64,7 +64,12 @@ library
                        HTTP,
                        bytestring,
                        Chart,
-                       Chart-diagrams
+                       Chart-diagrams,
+                       aeson,
+                       wreq >= 0.4,
+                       lens,
+                       lens-aeson,
+                       text
 
   -- Directories containing source files.
   hs-source-dirs:      src
