@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 
-module TimesFetcher where
+module LightTimes where
 
 import Control.Lens
 import Data.Aeson
