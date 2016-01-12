@@ -1,23 +1,27 @@
 module Charter (renderAndSaveLineGraph) where
 
+import Data.Time.Clock
+import Data.Time.LocalTime
 import Graphics.Rendering.Chart
 import Graphics.Rendering.Chart.Easy
 import Graphics.Rendering.Chart.Backend.Diagrams
 
 
-makeLineGraph :: [(Int, Int)] -> String -> Renderable ()
+makeLineGraph :: [(LocalTime, Int)]
+              -> String
+              -> Renderable ()
 makeLineGraph dataPoints graphName = toRenderable layout
   where layout = do
           layout_title      .= graphName
           layout_background .= solidFillStyle (opaque white)
           layout_foreground .= (opaque black)
 
-          let locker = if length dataPoints > 0
-                         then (fst $ head dataPoints, 100)
-                         else (0, 100)
+          let locker = case length dataPoints of
+                         0 -> []
+                         _ -> [(fst $ head dataPoints, 100)]
 
+          plot (line "" [locker])
           plot (line "Intensity" [dataPoints])
-          plot (line "" [[locker]])
 
           plot $ liftEC $ do
             plot_points_values .= dataPoints
@@ -25,6 +29,15 @@ makeLineGraph dataPoints graphName = toRenderable layout
             plot_points_style . point_radius .= 3
 
 
-renderAndSaveLineGraph :: [(Int, Int)] -> String -> String -> IO (PickFn ())
-renderAndSaveLineGraph dataPoints graphName outputPath =
-  renderableToFile def outputPath (makeLineGraph dataPoints graphName)
+renderAndSaveLineGraph :: [(UTCTime, Int)]
+                       -> String
+                       -> String
+                       -> IO (PickFn ())
+renderAndSaveLineGraph dataPoints graphName outputPath = do
+  timeZone <- getCurrentTimeZone
+
+  let firsts      = map (utcToLocalTime timeZone . fst) dataPoints
+      seconds     = map snd dataPoints
+      dataPoints' = zip firsts seconds
+
+  renderableToFile def outputPath (makeLineGraph dataPoints' graphName)

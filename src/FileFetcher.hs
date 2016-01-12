@@ -2,6 +2,8 @@ module FileFetcher where
 
 import Control.Monad
 import qualified Data.ByteString as B
+import Data.Time.Calendar
+import Data.Time.Clock
 import Network.HTTP
 import Network.URI (parseURI)
 
@@ -71,3 +73,9 @@ fetchSunriseImages = forM_ sunriseImages fetchImage
 
 fetchSunsetImages :: IO ()
 fetchSunsetImages = forM_ sunsetImages fetchImage
+
+
+getUTCTimeForImage :: Day -> ForecastImage -> UTCTime
+getUTCTimeForImage day image = addUTCTime diffTime (UTCTime day 0)
+  where diffTime :: NominalDiffTime
+        diffTime = fromIntegral (time image) * 60 * 60
