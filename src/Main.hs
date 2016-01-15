@@ -9,10 +9,8 @@ import Data.Time.LocalTime
 import ForecastImage
 import IntensityRater
 import qualified LightTimes
+import Locality
 
-
-type Latitude  = Float
-type Longitude = Float
 
 seattleCoords :: (Latitude, Longitude)
 seattleCoords = (47.6097, (-122.3331))
