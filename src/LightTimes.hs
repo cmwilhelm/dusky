@@ -67,3 +67,19 @@ getTimesForToday lat lng = do
   let (Just result) = r ^? responseBody . key "results"
 
   return (parseMaybe parseJSON result)
+
+
+sunriseTimes :: LightTimes -> [(UTCTime, String)]
+sunriseTimes lightTimes =
+  [ (ltAstroTwilightBegin lightTimes,    "Astronomical Twilight Begins")
+  , (ltNauticalTwilightBegin lightTimes, "Nautical Twilight Begins")
+  , (ltCivilTwilightBegin lightTimes,    "Civil Twilight Begins")
+  , (ltSunrise lightTimes,               "Sunrise") ]
+
+
+sunsetTimes :: LightTimes -> [(UTCTime, String)]
+sunsetTimes lightTimes =
+  [ (ltSunset lightTimes,              "Sunset")
+  , (ltCivilTwilightEnd lightTimes,    "Civil Twilight Ends")
+  , (ltNauticalTwilightEnd lightTimes, "Nautical Twilight Ends")
+  , (ltAstroTwilightEnd lightTimes,    "Astronomical Twilight Ends") ]

@@ -1,6 +1,6 @@
 module Charter (renderAndSaveLineGraph) where
 
-import Data.Time.Clock
+import Control.Monad
 import Data.Time.LocalTime
 import Graphics.Rendering.Chart
 import Graphics.Rendering.Chart.Easy
@@ -8,20 +8,18 @@ import Graphics.Rendering.Chart.Backend.Diagrams
 
 
 makeLineGraph :: [(LocalTime, Int)]
+              -> [(LocalTime, String)]
               -> String
               -> Renderable ()
-makeLineGraph dataPoints graphName = toRenderable layout
+makeLineGraph dataPoints verticals graphName = toRenderable layout
   where layout = do
           layout_title      .= graphName
           layout_background .= solidFillStyle (opaque white)
           layout_foreground .= (opaque black)
 
-          let locker = case length dataPoints of
-                         0 -> []
-                         _ -> [(fst $ head dataPoints, 100)]
+          forM_ verticals (\(lT, label) -> plot (line label [ [(lT, 0), (lT, 100)] ]))
 
-          plot (line "" [locker])
-          plot (line "Intensity" [dataPoints])
+          plot (line "Quality of Conditions" [dataPoints])
 
           plot $ liftEC $ do
             plot_points_values .= dataPoints
@@ -29,15 +27,10 @@ makeLineGraph dataPoints graphName = toRenderable layout
             plot_points_style . point_radius .= 3
 
 
-renderAndSaveLineGraph :: [(UTCTime, Int)]
+renderAndSaveLineGraph :: [(LocalTime, Int)]
+                       -> [(LocalTime, String)]
                        -> String
                        -> String
                        -> IO (PickFn ())
-renderAndSaveLineGraph dataPoints graphName outputPath = do
-  timeZone <- getCurrentTimeZone
-
-  let firsts      = map (utcToLocalTime timeZone . fst) dataPoints
-      seconds     = map snd dataPoints
-      dataPoints' = zip firsts seconds
-
-  renderableToFile def outputPath (makeLineGraph dataPoints' graphName)
+renderAndSaveLineGraph dataPoints verticals graphName outputPath = do
+  renderableToFile def outputPath (makeLineGraph dataPoints verticals graphName)

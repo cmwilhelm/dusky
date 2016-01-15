@@ -5,9 +5,17 @@ import Control.Monad
 import Charter
 import Data.Time.Calendar
 import Data.Time.Clock
+import Data.Time.LocalTime
 import FileFetcher
 import IntensityRater
+import qualified LightTimes
 
+
+type Latitude  = Float
+type Longitude = Float
+
+seattleCoords :: (Latitude, Longitude)
+seattleCoords = (47.6097, (-122.3331))
 
 seattleArea :: RegionShape
 seattleArea = Circle (214, 340) 10
@@ -35,16 +43,44 @@ fetchAndRateImagesForArea day area images =
   mapM (fetchAndRateImageForArea day area) images
 
 
+convertFstsToLocalTime :: TimeZone
+                       -> [(UTCTime, a)]
+                       -> [(LocalTime, a)]
+convertFstsToLocalTime tz timeTuples = map convert timeTuples
+  where convert (utcTime, second) = (utcToLocalTime tz utcTime, second)
+
+
+getLightTimes :: (Latitude, Longitude)
+              -> TimeZone
+              -> ( LightTimes.LightTimes -> [(UTCTime, String)] )
+              -> IO [(LocalTime, String)]
+getLightTimes (lat, lng) tz timesOfInterest = do
+  maybeLightTimes <- LightTimes.getTimesForToday lat lng
+
+  let results = case maybeLightTimes of
+                  Just lightTimes -> (convertFstsToLocalTime tz) (timesOfInterest lightTimes)
+                  Nothing         -> []
+
+  return results
+
+
 main :: IO ()
 main = do
-  currentTime <- getCurrentTime
+  timeZone         <- getCurrentTimeZone
+  (UTCTime date _) <- getCurrentTime
 
-  let (UTCTime date _) = currentTime
+  let coords = (0, 0)
 
-  sunriseValues <- fetchAndRateImagesForArea date seattleArea sunriseImages
-  sunsetValues  <- fetchAndRateImagesForArea date seattleArea sunsetImages
+  sunriseTimes   <- getLightTimes seattleCoords timeZone LightTimes.sunriseTimes
+  sunsetTimes    <- getLightTimes seattleCoords timeZone LightTimes.sunsetTimes
 
-  renderAndSaveLineGraph sunriseValues "Sunrise" "sunrise.svg"
-  renderAndSaveLineGraph sunsetValues  "Sunset"  "sunset.svg"
+  sunriseValues  <- fetchAndRateImagesForArea date seattleArea sunriseImages
+  sunsetValues   <- fetchAndRateImagesForArea date seattleArea sunsetImages
+
+  let sunriseValuesLocal = convertFstsToLocalTime timeZone sunriseValues
+      sunsetValuesLocal  = convertFstsToLocalTime timeZone sunsetValues
+
+  renderAndSaveLineGraph sunriseValuesLocal sunriseTimes "Sunrise" "sunrise.svg"
+  renderAndSaveLineGraph sunsetValuesLocal sunsetTimes "Sunset" "sunset.svg"
 
   return ()
