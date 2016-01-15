@@ -6,7 +6,7 @@ import Charter
 import Data.Time.Calendar
 import Data.Time.Clock
 import Data.Time.LocalTime
-import FileFetcher
+import ForecastImage
 import IntensityRater
 import qualified LightTimes
 
