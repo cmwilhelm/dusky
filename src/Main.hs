@@ -12,13 +12,6 @@ import qualified LightTimes
 import Locality
 
 
-seattleCoords :: (Latitude, Longitude)
-seattleCoords = (47.6097, (-122.3331))
-
-seattleArea :: RegionShape
-seattleArea = Circle (214, 340) 10
-
-
 fetchAndRateImageForArea :: Day
                          -> RegionShape
                          -> ForecastImage
