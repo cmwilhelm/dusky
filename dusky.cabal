@@ -48,10 +48,14 @@ cabal-version:       >=1.10
 
 library
   -- Modules exported by the library.
-  exposed-modules: Main
+  exposed-modules: Dusky 
 
   -- Modules included in this library but not exported.
-  -- other-modules:
+  other-modules: Charter,
+                 ForecastImage,
+                 IntensityRater,
+                 LightTimes,
+                 Locality 
 
   -- LANGUAGE extensions used by modules in this package.
   -- other-extensions:
@@ -79,3 +83,12 @@ library
 
   -- Base language which the package is written in.
   default-language:    Haskell2010
+
+executable dusky
+  main-is:  Main.hs
+  build-depends:
+    base -any,
+    dusky -any
+  default-language:    Haskell2010
+  buildable: True
+  hs-source-dirs: executable 
