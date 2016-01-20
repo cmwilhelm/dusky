@@ -61,6 +61,7 @@ library
                        JuicyPixels,
                        JuicyPixels-util,
                        network,
+                       network-uri >= 2.6,
                        HTTP,
                        bytestring,
                        Chart,
