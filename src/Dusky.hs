@@ -1,4 +1,4 @@
-module Main where
+module Dusky where
 
 import Codec.Picture.RGBA8
 import Control.Monad
