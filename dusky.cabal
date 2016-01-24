@@ -48,23 +48,22 @@ cabal-version:       >=1.10
 
 library
   -- Modules exported by the library.
-  exposed-modules: Dusky, LightTimes 
+  exposed-modules: Dusky, LightTimes
 
   -- Modules included in this library but not exported.
   other-modules: Charter,
                  ForecastImage,
                  IntensityRater,
-                 Locality 
+                 Locality
 
   -- LANGUAGE extensions used by modules in this package.
   -- other-extensions:
 
   -- Other library packages from which modules are imported.
-  build-depends:       base >=4.7, 
+  build-depends:       base >=4.7,
                        JuicyPixels,
                        JuicyPixels-util,
                        network,
-                       network-uri >= 2.6,
                        HTTP,
                        bytestring,
                        Chart,
@@ -75,7 +74,8 @@ library
                        lens-aeson,
                        text,
                        time,
-                       iso8601-time
+                       iso8601-time,
+                       containers
 
   -- Directories containing source files.
   hs-source-dirs:      src
@@ -90,7 +90,7 @@ executable dusky
     dusky -any
   default-language:    Haskell2010
   buildable: True
-  hs-source-dirs: executable 
+  hs-source-dirs: executable
 
 benchmark criterion
     build-depends: base -any,

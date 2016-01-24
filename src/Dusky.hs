@@ -1,8 +1,12 @@
 module Dusky where
 
 import Codec.Picture.RGBA8
+import Codec.Picture.Types
+import Control.Concurrent
 import Control.Monad
 import Charter
+import qualified Data.Map.Strict as Map
+import Data.Maybe
 import Data.Time.Calendar
 import Data.Time.Clock
 import Data.Time.LocalTime
@@ -12,26 +16,28 @@ import qualified LightTimes
 import Locality
 
 
-fetchAndRateImageForArea :: Day
-                         -> RegionShape
-                         -> ForecastImage
-                         -> IO (UTCTime, Int)
-fetchAndRateImageForArea day area image = do
-  _         <- fetchImage image
-  converted <- readImageRGBA8 (fileName image)
-
-  let timeValue = getUTCTimeForImage day image
-      intensity = determineRegionalIntensity converted seattleArea
-
-  return (timeValue, intensity)
+readInImage :: ForecastImage -> IO (Image PixelRGBA8)
+readInImage = readImageRGBA8 . fileName
 
 
-fetchAndRateImagesForArea :: Day
-                          -> RegionShape
-                          -> [ForecastImage]
-                          -> IO ([(UTCTime, Int)])
-fetchAndRateImagesForArea day area images =
-  mapM (fetchAndRateImageForArea day area) images
+readInImages :: [ForecastImage] -> IO (Map.Map ForecastImage (Image PixelRGBA8))
+readInImages images = do
+  pixelRGBA8s <- mapM readInImage images
+  return (Map.fromList $ zip images pixelRGBA8s)
+
+
+rateImagesForArea :: Day
+                  -> RegionShape
+                  -> Map.Map ForecastImage (Image PixelRGBA8)
+                  -> [ForecastImage]
+                  -> [(UTCTime, Int)]
+rateImagesForArea day area pRGBA8s images = mapMaybe rateImage images
+  where rateImage :: ForecastImage -> Maybe (UTCTime, Int)
+        rateImage image = do
+          let timeValue = getUTCTimeForImage day image
+          pRGBA8 <- Map.lookup image pRGBA8s
+
+          return (timeValue, determineRegionalIntensity pRGBA8 area)
 
 
 convertFstsToLocalTime :: TimeZone
@@ -60,18 +66,22 @@ main = do
   timeZone         <- getCurrentTimeZone
   (UTCTime date _) <- getCurrentTime
 
-  let coords = (0, 0)
+  sunriseTimes <- getLightTimes seattleCoords timeZone LightTimes.sunriseTimes
+  sunsetTimes  <- getLightTimes seattleCoords timeZone LightTimes.sunsetTimes
 
-  sunriseTimes   <- getLightTimes seattleCoords timeZone LightTimes.sunriseTimes
-  sunsetTimes    <- getLightTimes seattleCoords timeZone LightTimes.sunsetTimes
+  _ <- fetchSunriseImages
+  _ <- fetchSunsetImages
 
-  sunriseValues  <- fetchAndRateImagesForArea date seattleArea sunriseImages
-  sunsetValues   <- fetchAndRateImagesForArea date seattleArea sunsetImages
+  pixelRGBA8Map <- readInImages (sunriseImages ++ sunsetImages)
+  imageMVar     <- newMVar pixelRGBA8Map
+  pRGBA8Map     <- takeMVar imageMVar
 
-  let sunriseValuesLocal = convertFstsToLocalTime timeZone sunriseValues
-      sunsetValuesLocal  = convertFstsToLocalTime timeZone sunsetValues
+  let sunriseValues    = rateImagesForArea date seattleArea pRGBA8Map sunriseImages
+      sunsetValues     = rateImagesForArea date seattleArea pRGBA8Map sunsetImages
+      sunriseValsLocal = convertFstsToLocalTime timeZone sunriseValues
+      sunsetValsLocal  = convertFstsToLocalTime timeZone sunsetValues
 
-  renderAndSaveLineGraph sunriseValuesLocal sunriseTimes "Sunrise" "sunrise.svg"
-  renderAndSaveLineGraph sunsetValuesLocal sunsetTimes "Sunset" "sunset.svg"
+  renderAndSaveLineGraph sunriseValsLocal sunriseTimes "Sunrise" "sunrise.svg"
+  renderAndSaveLineGraph sunsetValsLocal sunsetTimes "Sunset" "sunset.svg"
 
   return ()

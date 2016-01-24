@@ -8,12 +8,12 @@ import Network.HTTP
 import Network.URI (parseURI)
 
 
-data ForecastType  = Sunrise | Sunset deriving (Show, Eq)
+data ForecastType  = Sunrise | Sunset deriving (Show, Eq, Ord)
 data ForecastImage = ForecastImage { forecastType :: ForecastType
                                    , imageUrl     :: String
                                    , fileName     :: String
                                    , time         :: Int
-                                   } deriving (Show, Eq)
+                                   } deriving (Show, Eq, Ord)
 
 
 baseUrl :: String
