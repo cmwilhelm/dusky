@@ -4,16 +4,17 @@ import Codec.Picture.RGBA8
 import Codec.Picture.Types
 import Control.Concurrent
 import Control.Monad
-import Charter
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import Data.Time.Calendar
 import Data.Time.Clock
 import Data.Time.LocalTime
-import ForecastImage
-import IntensityRater
-import qualified LightTimes
-import Locality
+
+import Dusky.Charter
+import Dusky.ForecastImage
+import Dusky.IntensityRater
+import Dusky.Locality
+import Dusky.LightTimes
 
 
 readInImage :: ForecastImage -> IO (Image PixelRGBA8)
@@ -49,10 +50,10 @@ convertFstsToLocalTime tz timeTuples = map convert timeTuples
 
 getLightTimes :: (Latitude, Longitude)
               -> TimeZone
-              -> ( LightTimes.LightTimes -> [(UTCTime, String)] )
+              -> ( LightTimes -> [(UTCTime, String)] )
               -> IO [(LocalTime, String)]
 getLightTimes (lat, lng) tz timesOfInterest = do
-  maybeLightTimes <- LightTimes.getTimesForToday lat lng
+  maybeLightTimes <- getTimesForToday lat lng
 
   let results = case maybeLightTimes of
                   Just lightTimes -> (convertFstsToLocalTime tz) (timesOfInterest lightTimes)
@@ -66,8 +67,8 @@ main = do
   timeZone         <- getCurrentTimeZone
   (UTCTime date _) <- getCurrentTime
 
-  sunriseTimes <- getLightTimes seattleCoords timeZone LightTimes.sunriseTimes
-  sunsetTimes  <- getLightTimes seattleCoords timeZone LightTimes.sunsetTimes
+  sunriseTimes <- getLightTimes seattleCoords timeZone sunriseTimes
+  sunsetTimes  <- getLightTimes seattleCoords timeZone sunsetTimes
 
   _ <- fetchSunriseImages
   _ <- fetchSunsetImages

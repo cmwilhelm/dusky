@@ -1,4 +1,4 @@
-module Locality where
+module Dusky.Locality where
 
 type Latitude  = Float
 type Longitude = Float

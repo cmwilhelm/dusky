@@ -1,4 +1,4 @@
-module ForecastImage where
+module Dusky.ForecastImage where
 
 import Control.Monad
 import qualified Data.ByteString as B

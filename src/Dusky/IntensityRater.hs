@@ -1,11 +1,12 @@
-module IntensityRater
+module Dusky.IntensityRater
   ( determineRegionalIntensity
   ) where
 
 import Codec.Picture.Types
 import Data.List
 import qualified Data.Map.Strict as Map
-import Locality
+
+import Dusky.Locality
 
 
 toPercent :: Float -> Int

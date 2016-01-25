@@ -1,4 +1,4 @@
-module Charter (renderAndSaveLineGraph) where
+module Dusky.Charter (renderAndSaveLineGraph) where
 
 import Control.Monad
 import Data.Time.LocalTime

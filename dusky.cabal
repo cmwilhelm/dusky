@@ -48,13 +48,13 @@ cabal-version:       >=1.10
 
 library
   -- Modules exported by the library.
-  exposed-modules: Dusky, LightTimes
+  exposed-modules: Dusky, Dusky.LightTimes
 
   -- Modules included in this library but not exported.
-  other-modules: Charter,
-                 ForecastImage,
-                 IntensityRater,
-                 Locality
+  other-modules: Dusky.Charter,
+                 Dusky.ForecastImage,
+                 Dusky.IntensityRater,
+                 Dusky.Locality
 
   -- LANGUAGE extensions used by modules in this package.
   -- other-extensions:

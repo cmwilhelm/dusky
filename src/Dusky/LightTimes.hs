@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 
-module LightTimes where
+module Dusky.LightTimes where
 
 import Control.Lens
 import Data.Aeson
