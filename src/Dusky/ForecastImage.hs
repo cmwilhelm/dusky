@@ -1,5 +1,6 @@
 module Dusky.ForecastImage where
 
+import Control.Concurrent.Async (mapConcurrently)
 import Control.Monad
 import qualified Data.ByteString as B
 import Data.Time.Calendar
@@ -68,11 +69,15 @@ fetchImage (ForecastImage _ url fName _) = do
 
 
 fetchSunriseImages :: IO ()
-fetchSunriseImages = forM_ sunriseImages fetchImage
+fetchSunriseImages = do
+  _ <- mapConcurrently fetchImage sunriseImages
+  return ()
 
 
 fetchSunsetImages :: IO ()
-fetchSunsetImages = forM_ sunsetImages fetchImage
+fetchSunsetImages = do
+  _ <- mapConcurrently fetchImage sunsetImages
+  return ()
 
 
 getUTCTimeForImage :: Day -> ForecastImage -> UTCTime

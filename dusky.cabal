@@ -75,7 +75,8 @@ library
                        text,
                        time,
                        iso8601-time,
-                       containers
+                       containers,
+                       async
 
   -- Directories containing source files.
   hs-source-dirs:      src
