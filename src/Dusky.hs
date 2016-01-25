@@ -2,7 +2,7 @@ module Dusky where
 
 import Codec.Picture.RGBA8
 import Codec.Picture.Types
-import Control.Concurrent
+import Control.Concurrent (newMVar, putMVar, takeMVar)
 import Control.Monad
 import qualified Data.Map.Strict as Map
 import Data.Maybe
